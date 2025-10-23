@@ -1,0 +1,20 @@
+/* Root color palette */
+:root {
+  /* main colors */
+  --bg-color:  #FFF5E3;
+  --primary: #F2B5D4;
+  --secondary: #ACCAFF;
+  --secondary-container: #E8DEF8;
+  --pop: #FF9F68;
+  --shade-pop: #FF7424;
+  --shade-primary: #DB88B2;
+  --shade-secondary: #8BAFF0;
+
+  /* pen colors */
+  --pen-black: #000000;
+  --pen-blue: #002B59;
+
+  /* friendly colors */
+  --friendly-success: #4dc583;
+  --friendly-alert: #f35b40;
+}

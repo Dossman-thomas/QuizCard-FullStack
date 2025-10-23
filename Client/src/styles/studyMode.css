@@ -1,0 +1,22 @@
+.study-btns {
+    background-color: transparent; 
+}
+
+.study-btns:hover {
+    background-color: transparent;
+    color: var(--shade-secondary);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.study-nav {
+    color: var(--secondary);
+}
+
+.icons {
+    width: 2rem;
+    height: 2rem;
+}
+
+#shuffle-btn {
+    color: var(--primary);
+}
