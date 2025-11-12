@@ -7,7 +7,9 @@ dotenv.config({ path: `.env.${nodeEnv}` }); // load environment variables from .
 export const env = {
     NodeEnv: nodeEnv,
     db: {},
-    server: {},
+    server: {
+        port: process.env.SERVER_PORT,
+    },
     jwt: {},
     encryption: {},
     email: {},
