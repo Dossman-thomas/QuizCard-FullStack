@@ -13,7 +13,7 @@ export const env = {
     email: {},
     filePaths: {},
     multer: {},
-    frontEndUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+    frontEndUrl: process.env.FRONTEND_URL,
     roles: {},
     booleans: {
         t: process.env.TRUE,

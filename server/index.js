@@ -1,8 +1,18 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import morgan from 'morgan';    
+import compression from 'compression';
+import path from 'path';
+import { routes } from './routes/router.js';
+import { env } from './config/index.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { pool } from './config/index.js'; 
+import { response } from './utils/index.js'; 
+import { messages } from './messages/index.js'; 
 
-dotenv.config();
+const PORT = env.server.port || process.env.PORT; 
+
 
 const app = express();
 
@@ -13,5 +23,5 @@ app.use(express.json());
 // Routes
 app.use('/api', routes);
 
-const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
