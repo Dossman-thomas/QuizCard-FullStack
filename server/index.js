@@ -1,30 +1,31 @@
 import express from 'express';
 import cors from 'cors';
-import morgan from 'morgan';    
+import morgan from 'morgan';
 import compression from 'compression';
 import path from 'path';
 import { routes } from './routes/router.js';
 import { env } from './config/index.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { pool } from './config/index.js'; 
-import { response } from './utils/index.js'; 
-import { messages } from './messages/index.js'; 
+import { pool } from './config/db.config.js';
+import { response } from './utils/index.js';
+import { messages } from './messages/index.js';
+
+// Get __dirname in ES modules context
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Define the port from environment variables
-const PORT = env.server.port || process.env.SERVER_PORT; 
+const PORT = process.env.SERVER_PORT || env.server.port;
 
 // Validate critical environment variables
 if (!PORT) {
-    console.error('Error: SERVER_PORT is not defined in environment variables.');
-    process.exit(1); // Stop the server if critical env vars are missing
+  console.error('Error: SERVER_PORT is not defined in environment variables.');
+  process.exit(1); // Stop the server if critical env vars are missing
 }
 
 // Initialize Express app
 const app = express();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // -----------------------------
 // Middleware
@@ -60,8 +61,15 @@ app.use(
   express.static(path.join(__dirname, env.filePaths.staticFilePath))
 );
 
-// define routes
+// -----------------------------
+// Routes
+// -----------------------------
+
 app.use('/api', routes);
+
+// -----------------------------
+// Error Handling
+// -----------------------------
 
 // Handle 404 errors
 app.use((req, res, next) => {
@@ -86,7 +94,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Synchronize database and start server
+// -----------------------------
+// Database Connection & Server Start
+// -----------------------------
+
 (async () => {
   try {
     // Test database connection before starting
@@ -104,3 +115,16 @@ app.use((err, req, res, next) => {
     process.exit(1);
   }
 })();
+
+// -----------------------------
+// Graceful Shutdown
+// -----------------------------
+['SIGINT', 'SIGTERM'].forEach((signal) => {
+  process.on(signal, () => {
+    console.log(`\n🛑 Received ${signal}. Shutting down gracefully...`);
+    pool.end(() => {
+      console.log('✅ Database pool closed.');
+      process.exit(0);
+    });
+  });
+});
