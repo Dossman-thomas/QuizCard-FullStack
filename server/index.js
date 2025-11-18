@@ -56,10 +56,10 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // serve static files from environment variables
-app.use(
-  env.filePaths.relativePath,
-  express.static(path.join(__dirname, env.filePaths.staticFilePath))
-);
+// app.use(
+//   env.filePaths.relativePath,
+//   express.static(path.join(__dirname, env.filePaths.staticFilePath))
+// );
 
 // -----------------------------
 // Routes
