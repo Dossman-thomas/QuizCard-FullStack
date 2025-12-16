@@ -2,18 +2,18 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import compression from 'compression';
-import path from 'path';
+// import path from 'path';
 import { routes } from './routes/router.js';
 import { env } from './config/index.js';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// import { fileURLToPath } from 'url';
+// import { dirname } from 'path';
 import { pool } from './config/db.config.js';
 import { response } from './utils/index.js';
 import { messages } from './messages/index.js';
 
 // Get __dirname in ES modules context
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
 // Define the port from environment variables
 const PORT = process.env.SERVER_PORT || env.server.port;
