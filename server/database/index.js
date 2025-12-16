@@ -1,8 +1,10 @@
+// schema runner
+
 import fs from 'fs';
 import path from 'path';
 import { pool } from '../config/index';
 
-const schemaDir = path.resolve('database/schema');
+const schemaDir = path.resolve('database/schemas');
 
 async function runSchemas() {
   const files = fs.readdirSync(schemaDir).sort();
