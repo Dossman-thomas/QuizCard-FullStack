@@ -8,7 +8,7 @@ import { pool } from '../config/db.config.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const schemaDir = path.join(__dirname, 'schema');
+const schemaDir = path.join(__dirname, 'schemas');
 
 async function runSchema() {
   const files = fs
