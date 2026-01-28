@@ -1,3 +1,1 @@
-// register a user (create)
-
-// login
+// auth routes
