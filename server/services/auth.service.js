@@ -10,15 +10,90 @@ import {
   createError,
 } from '../utils/index.js';
 
+// validate jwt token before importing package
+if (!env.jwt.secret || !env.jwt.expires || !env.jwt.rememberMe) {
+  throw createError(
+    'Missing one or more required JWT environment variables.',
+    500,
+    {
+      code: 'JWT_ENV_VARIABLES_MISSING',
+    },
+  );
+}
+
+import jwt from 'jsonwebtoken';
+
 // register a user (create)
 export const registerUserService = async (payload) => {
   try {
     // register user business logic
+
     // validate payload
+    if (!payload || typeof payload !== 'object') {
+      throw createError('Invalid payload. Please provide valid data.', 400, {
+        code: 'INVALID_PAYLOAD',
+      });
+    }
+
+    // extract user_email payload
+    const { username, email, password } = payload;
+
     // validate input
+    if (!username || !email || !password) {
+      throw createError('Missing required fields.', 400, {
+        code: 'MISSING_FIELDS',
+      });
+    }
+
+    // validate password strength
+    validatePasswordStrength(password);
+
     // enforce uniqueness of email
+    const emailCheckQuery = `
+      SELECT user_id
+      FROM users
+      WHERE user_email = crypt($1, email)
+      LIMIT 1;
+    `;
+
+    const { rowCount } = await pool.query(emailCheckQuery, [email]);
+
+    if (rowCount > 0) {
+      throw createError('Email already in use', 409, {
+        code: 'EMAIL_ALREADY_EXISTS',
+      });
+    }
+
     // hash password
+    const hashedPassword = await hashPassword(password);
+
     // store new user in DB securely
+    const insertUserQuery = `
+      INSERT INTO users (
+        user_id,
+        username,
+        email,
+        password
+      )
+      VALUES (
+      gen_random_uuid(),
+      $1,
+      crypt($2, gen_salt('bf')),
+      $3,
+      )
+      RETURNING user_id;
+    `;
+
+    const { rows } = await pool.query(insertUserQuery, [
+      username,
+      email,
+      hashedPassword,
+    ]);
+
+    return {
+      userId: rows[0].user_id,
+    };
+
     // return safe response
   } catch (error) {
     // handle errors and log them for debugging
@@ -39,18 +114,35 @@ export const loginUserService = async (payload) => {
     // login business logic
 
     // validate payload
-    if (!payload || typeof payload !== 'string') {
+    if (!payload || typeof payload !== 'object') {
       throw createError('Invalid payload. Please provide valid data.', 400, {
         code: 'INVALID_PAYLOAD',
       });
     }
 
-    // extract user_email, user_password, and rememberMe from payload
-    const { user_email, user_password, rememberMe } = payload;
+    // extract email, password, and rememberMe from payload
+    const { email, password, rememberMe } = payload;
 
+    // validate inputs
+    if (!email || !password) {
+      throw createError('Missing credentials.', 400, {
+        code: 'MISSING_CREDENTIALS',
+      });
+    }
     // rate limiting logic for the future
 
     // Query database to find a matching user
+    const findUserQuery = `
+      SELECT
+        user_id,
+        password
+      FROM users
+      WHERE email = crypt($1, email)
+      LIMIT 1;
+    `;
+
+    const { rows } = await pool.query(findUserQuery, [email]);
+    const user = rows[0];
 
     // check if user exists
     if (!user || user.length === 0) {
@@ -60,10 +152,7 @@ export const loginUserService = async (payload) => {
     }
 
     // Compare decrypted inputted password with hashed password in the db
-    const isPasswordValid = await bcrypt.compare(
-      user_password,
-      user.user_password,
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     // check if password is valid
     if (!isPasswordValid) {
