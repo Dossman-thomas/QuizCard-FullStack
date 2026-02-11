@@ -142,7 +142,7 @@ export const loginUserService = async (payload) => {
         user_id,
         password
       FROM users
-      WHERE email = $1
+      WHERE email_hash = encode(digest(lower($1), 'sha256'), 'hex')
       LIMIT 1;
     `;
 
