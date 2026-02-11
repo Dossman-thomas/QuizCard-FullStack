@@ -23,6 +23,7 @@ if (!env.jwt.secret || !env.jwt.expires || !env.jwt.rememberMe) {
 }
 
 import jwt from 'jsonwebtoken';
+import { env } from 'process';
 
 // register a user (create)
 export const registerUserService = async (payload) => {
@@ -49,11 +50,11 @@ export const registerUserService = async (payload) => {
     // validate password strength
     validatePasswordStrength(password);
 
-    // enforce uniqueness of email
+    // enforce uniqueness of hash email
     const emailCheckQuery = `
       SELECT user_id
       FROM users
-      WHERE email = $1
+      WHERE email_hash = encode(digest(lower($1), 'sha256'), 'hex')
       LIMIT 1;
     `;
 
@@ -65,8 +66,6 @@ export const registerUserService = async (payload) => {
       });
     }
 
-    // hash email
-
     // hash password
     const hashedPassword = await hashPassword(password);
 
@@ -75,14 +74,16 @@ export const registerUserService = async (payload) => {
       INSERT INTO users (
         user_id,
         username,
-        email,
+        email_encrypted,
+        email_hash,
         password
       )
       VALUES (
       gen_random_uuid(),
       $1,
-      $2,
-      $3
+      pgp_sym_encrypt($2, $3),
+      encode(digest(lower($2), 'sha256'), 'hex'),
+      $4
       )
       RETURNING user_id;
     `;
@@ -90,6 +91,7 @@ export const registerUserService = async (payload) => {
     const { rows } = await pool.query(insertUserQuery, [
       username,
       email,
+      env.encryption.emailSecret,
       hashedPassword,
     ]);
 
