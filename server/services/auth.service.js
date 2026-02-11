@@ -3,6 +3,7 @@
 // imports
 import { pool } from '../config/index.js';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import {
   hashPassword,
   validatePasswordStrength,
@@ -52,7 +53,7 @@ export const registerUserService = async (payload) => {
     const emailCheckQuery = `
       SELECT user_id
       FROM users
-      WHERE user_email = crypt($1, email)
+      WHERE email = $1
       LIMIT 1;
     `;
 
@@ -63,6 +64,8 @@ export const registerUserService = async (payload) => {
         code: 'EMAIL_ALREADY_EXISTS',
       });
     }
+
+    // hash email
 
     // hash password
     const hashedPassword = await hashPassword(password);
@@ -78,8 +81,8 @@ export const registerUserService = async (payload) => {
       VALUES (
       gen_random_uuid(),
       $1,
-      crypt($2, gen_salt('bf')),
-      $3,
+      $2,
+      $3
       )
       RETURNING user_id;
     `;
@@ -137,7 +140,7 @@ export const loginUserService = async (payload) => {
         user_id,
         password
       FROM users
-      WHERE email = crypt($1, email)
+      WHERE email = $1
       LIMIT 1;
     `;
 
