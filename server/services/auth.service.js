@@ -1,14 +1,14 @@
 // contains business logic for signing up and logging in.
 
 // imports
-import { pool } from '../config/index.js';
+import { pool, env } from '../config/index.js';
 import bcrypt from 'bcrypt';
-import crypto from 'crypto';
 import {
   hashPassword,
   validatePasswordStrength,
   logServiceError,
   createError,
+  hashNormalizedEmail,
 } from '../utils/index.js';
 
 // validate jwt token before importing package
@@ -23,7 +23,6 @@ if (!env.jwt.secret || !env.jwt.expires || !env.jwt.rememberMe) {
 }
 
 import jwt from 'jsonwebtoken';
-import { env } from 'process';
 
 // register a user (create)
 export const registerUserService = async (payload) => {
@@ -50,15 +49,18 @@ export const registerUserService = async (payload) => {
     // validate password strength
     validatePasswordStrength(password);
 
+    // hash email
+    const emailHash = hashNormalizedEmail(email);
+
     // enforce uniqueness of hash email
     const emailCheckQuery = `
       SELECT user_id
       FROM users
-      WHERE email_hash = encode(digest(lower($1), 'sha256'), 'hex')
+      WHERE email_hash = $1
       LIMIT 1;
     `;
 
-    const { rowCount } = await pool.query(emailCheckQuery, [email]);
+    const { rowCount } = await pool.query(emailCheckQuery, [emailHash]);
 
     if (rowCount > 0) {
       throw createError('Email already in use', 409, {
@@ -82,16 +84,17 @@ export const registerUserService = async (payload) => {
       gen_random_uuid(),
       $1,
       pgp_sym_encrypt($2, $3),
-      encode(digest(lower($2), 'sha256'), 'hex'),
-      $4
+      $4,
+      $5
       )
       RETURNING user_id;
     `;
 
     const { rows } = await pool.query(insertUserQuery, [
       username,
-      email,
+      normalizedEmail,
       env.encryption.emailSecret,
+      emailHash,
       hashedPassword,
     ]);
 
@@ -136,23 +139,35 @@ export const loginUserService = async (payload) => {
     }
     // rate limiting logic for the future
 
+    // hash email
+    const emailHash = hashNormalizedEmail(email);
+
+    // hash email for lookup
+    const emailHashQuery = `
+    SELECT $1 AS email_hash;
+    `;
+
+    const {
+      rows: [{ email_hash }],
+    } = await pool.query(emailHashQuery, [emailHash]);
+
     // Query database to find a matching user
     const findUserQuery = `
       SELECT
         user_id,
         password
       FROM users
-      WHERE email_hash = encode(digest(lower($1), 'sha256'), 'hex')
+      WHERE email_hash = $1
       LIMIT 1;
     `;
 
-    const { rows } = await pool.query(findUserQuery, [email]);
+    const { rows } = await pool.query(findUserQuery, [email_hash]);
     const user = rows[0];
 
     // check if user exists
-    if (!user || user.length === 0) {
-      throw createError('User not found.', 404, {
-        code: 'USER_NOT_FOUND',
+    if (!user) {
+      throw createError('Invalid credentials', 401, {
+        code: 'INVALID_CREDENTIALS',
       });
     }
 
@@ -170,24 +185,21 @@ export const loginUserService = async (payload) => {
     const tokenExpiry = rememberMe ? env.jwt.rememberMe : env.jwt.expires;
 
     // Generate JWT token if authentication is successful
-    const token = jwt.sign({ id: user.user_id }, env.jwt.secret, {
-      expiresIn: tokenExpiry,
-    });
+    const token = jwt.sign(
+      { sub: user.user_id, type: 'access' },
+      env.jwt.secret,
+      {
+        expiresIn: tokenExpiry,
+      },
+    );
 
     // package token and user details before sending them back
-    responsePayload = { token: token, userId: user_id };
-
-    // validate payload structure
-    if (!responsePayload.token || !responsePayload.userId) {
-      throw createError('Invalid payload structure.', 400, {
-        code: 'INVALID_PAYLOAD_STRUCTURE',
-      });
-    }
+    const responsePayload = { token: token, userId: user.user_id };
 
     // on successful login, reset the attempt count
 
     // return packaged response payload
-    return { responsePayload };
+    return responsePayload;
   } catch (error) {
     // handle errors and log them for debugging
     logServiceError('loginUserService', error);

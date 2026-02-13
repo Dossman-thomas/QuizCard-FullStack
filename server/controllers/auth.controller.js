@@ -7,13 +7,13 @@ export const registerUserController = async (req, res) => {
 
   try {
     // register user using service function
-    const user = await registerUserService(payload);
+    const userId = await registerUserService(payload);
 
     // send success response
     return response(res, {
-      statusCode: 200,
+      statusCode: 201,
       message: messages.auth.SIGNUP_SUCCESS,
-      data: user.userId,
+      data: { userId },
     });
   } catch (error) {
     console.error(
