@@ -16,7 +16,11 @@ export const env = {
   server: {
     port: process.env.SERVER_PORT,
   },
-  jwt: {},
+  jwt: {
+    secret: process.env.JWT_SECRET,
+    expires: process.env.JWT_EXPIRES,
+    rememberMe: process.env.JWT_REMEMBER_ME,
+  },
   encryption: {
     emailSecret: process.env.PGP_SECRET,
   },

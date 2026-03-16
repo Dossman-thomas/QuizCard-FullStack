@@ -10,7 +10,7 @@ import { validatePayload } from '../middleware/index.js';
 export const authRouter = Router();
 
 // sign up route
-authRouter.post('/signup', validatePayload, registerUserController);
+authRouter.post('/register', validatePayload, registerUserController);
 
 // log in route
 authRouter.post('/login', validatePayload, loginUserController);

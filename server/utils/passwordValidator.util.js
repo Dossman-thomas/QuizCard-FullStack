@@ -1,12 +1,13 @@
+import { logServiceError, createError } from './index.js';
+
 export const validatePasswordStrength = (password) => {
-  const regex =
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d@$!%*?&]{8,}$/; // At least 8 chars, 1 letter, 1 number, 1 special char
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/; // At least 8 chars, 1 letter, 1 number, 1 special char
   if (!regex.test(password)) {
-    return {
-      isValid: false,
-      message:
-        'Password must be at least 8 characters long and include letters, numbers, and a special character.',
-    };
+    throw createError(
+      'Password must be at least 8 characters long and include letters, numbers, and special character.',
+      400,
+      { code: 'WEAK_PASSWORD' },
+    );
   }
   return { isValid: true, message: 'Password validation passed' };
 };

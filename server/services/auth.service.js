@@ -9,7 +9,11 @@ import {
   logServiceError,
   createError,
   hashNormalizedEmail,
+  normalizeEmail,
+  validateEmail,
 } from '../utils/index.js';
+
+// import jwt from 'jsonwebtoken';
 
 // validate jwt token before importing package
 if (!env.jwt.secret || !env.jwt.expires || !env.jwt.rememberMe) {
@@ -49,8 +53,14 @@ export const registerUserService = async (payload) => {
     // validate password strength
     validatePasswordStrength(password);
 
+    // normalize email
+    const normalizedEmail = normalizeEmail(email);
+
+    // validate email regex
+    validateEmail(normalizedEmail);
+
     // hash email
-    const emailHash = hashNormalizedEmail(email);
+    const emailHash = hashNormalizedEmail(normalizedEmail);
 
     // enforce uniqueness of hash email
     const emailCheckQuery = `

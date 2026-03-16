@@ -7,13 +7,12 @@ export const messages = {
     UNAUTHORIZED: 'Unauthorized',
     VALIDATION_ERROR: 'Validation error',
     NOT_FOUND: 'Not found',
-    NO_PAYLOAD: 'No payload found',
     INVALID_REQUEST: 'Invalid request',
     FORBIDDEN: 'Forbidden',
     DATA_NOT_FOUND: 'Data not found',
     EMAIL_SENT: 'Email sent successfully',
     OOPS: 'Oops! Something whet wrong. Please try again later',
-    NO_PAYLOAD: 'Encrypted payload string is required',
+    NO_PAYLOAD: 'Payload string is required',
   },
   auth: {
     SIGNIN_SUCCESS: 'SignIn successfully',
@@ -45,7 +44,7 @@ export const messages = {
   },
   collection: {
     COLLECTIONS_FOUND: 'Collections found',
-    COLLECTIONS_NOT_FOUND: 'No Collections found'
+    COLLECTIONS_NOT_FOUND: 'No Collections found',
   },
   encryption: {
     ENCRYPTION_SUCCESS: 'Encryption successful',
@@ -64,5 +63,5 @@ export const messages = {
     SUPER_ADMIN_ADDED: 'Super admin added successfully',
     SUPER_ADMIN_UPDATED: 'Super admin updated successfully',
     SUPER_ADMIN_DELETED: 'Super admin soft-deleted successfully',
-  }
+  },
 };

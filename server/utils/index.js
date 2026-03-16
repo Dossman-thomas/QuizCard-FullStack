@@ -11,5 +11,6 @@ export { createError } from './errorHandler.util.js';
 
 // handling emails
 export { emailRegex } from './regex.util.js';
+export { validateEmail } from './emailValidator.util.js';
 export { normalizeEmail } from './normalizeEmail.util.js';
 export { hashNormalizedEmail } from './hash-email.util.js';

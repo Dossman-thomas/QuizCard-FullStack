@@ -34,13 +34,13 @@ export const loginUserController = async (req, res) => {
 
   try {
     // authenticate user during login
-    const user = await loginUserService(payload);
+    const authPayload = await loginUserService(payload);
 
     // send success response
     return response(res, {
       statusCode: 200,
       message: messages.auth.SIGNIN_SUCCESS,
-      data: user.responsePayload,
+      data: authPayload,
     });
   } catch (error) {
     console.error('Error in loginUserController:', error.message, error.stack);
