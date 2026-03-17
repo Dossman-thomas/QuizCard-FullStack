@@ -149,8 +149,9 @@ export const loginUserService = async (payload) => {
     }
     // rate limiting logic for the future
 
+    const normalizedEmail = normalizeEmail(email);
     // hash email
-    const emailHash = hashNormalizedEmail(email);
+    const emailHash = hashNormalizedEmail(normalizedEmail);
 
     // hash email for lookup
     const emailHashQuery = `
