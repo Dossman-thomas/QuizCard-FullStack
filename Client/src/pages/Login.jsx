@@ -59,7 +59,7 @@ export default function LoginPage() {
         password: form.password,
       });
 
-      console.log(res);
+      //   console.log(res);
 
       if (res.status !== 200) {
         throw new Error(res.message || 'Login failed');

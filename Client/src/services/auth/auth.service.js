@@ -39,3 +39,9 @@ export const loginUser = async (payload) => {
     throw new Error('Network error during login');
   }
 };
+
+// log out user
+export const logoutUser = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userId');
+};
