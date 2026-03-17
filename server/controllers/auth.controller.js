@@ -3,17 +3,15 @@ import { messages } from '../messages/index.js';
 import { response } from '../utils/index.js';
 
 export const registerUserController = async (req, res) => {
-  const { payload } = req.body;
-
   try {
     // register user using service function
-    const userId = await registerUserService(payload);
+    const authPayload = await registerUserService(req.body);
 
     // send success response
     return response(res, {
       statusCode: 201,
       message: messages.auth.SIGNUP_SUCCESS,
-      data: { userId },
+      data: authPayload,
     });
   } catch (error) {
     console.error(
@@ -25,6 +23,7 @@ export const registerUserController = async (req, res) => {
     return response(res, {
       statusCode: error.status || 500,
       message: error.message || messages.general.INTERNAL_SERVER_ERROR,
+      errorCode: error.code,
     });
   }
 };
@@ -48,6 +47,7 @@ export const loginUserController = async (req, res) => {
     return response(res, {
       statusCode: error.status || 500,
       message: error.message || messages.general.INTERNAL_SERVER_ERROR,
+      errorCode: error.code,
     });
   }
 };

@@ -41,10 +41,10 @@ export const registerUserService = async (payload) => {
     }
 
     // extract user_email payload
-    const { username, email, password } = payload;
+    const { email, password } = payload;
 
     // validate input
-    if (!username || !email || !password) {
+    if (!email || !password) {
       throw createError('Missing required fields.', 400, {
         code: 'MISSING_FIELDS',
       });
@@ -92,24 +92,31 @@ export const registerUserService = async (payload) => {
       )
       VALUES (
       gen_random_uuid(),
-      $1,
-      pgp_sym_encrypt($2, $3),
-      $4,
-      $5
+      NULL,
+      pgp_sym_encrypt($1, $2),
+      $3,
+      $4
       )
       RETURNING user_id;
     `;
 
     const { rows } = await pool.query(insertUserQuery, [
-      username,
       normalizedEmail,
       env.encryption.emailSecret,
       emailHash,
       hashedPassword,
     ]);
 
+    const userId = rows[0].user_id;
+
+    // Generate JWT token if authentication is successful
+    const token = jwt.sign({ sub: userId, type: 'access' }, env.jwt.secret, {
+      expiresIn: env.jwt.expires,
+    });
+
     return {
-      userId: rows[0].user_id,
+      token,
+      userId,
     };
 
     // return safe response
