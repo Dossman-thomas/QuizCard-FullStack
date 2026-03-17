@@ -3,11 +3,13 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { NavLink } from 'react-router-dom';
 import '../styles/header.css';
-import { logoutUser } from '../services/auth/auth.service';
+import { useAuth } from '../context/AuthContext';
 
 export default function Header() {
+  const { isAuthenticated, logout } = useAuth();
+
   const handleLogout = () => {
-    logoutUser();
+    logout();
   };
 
   return (
@@ -25,9 +27,20 @@ export default function Header() {
             <Nav.Link as={NavLink} to="/study" eventKey="2">
               Study Mode
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/" eventKey="3" onClick={handleLogout}>
-              Log Out
-            </Nav.Link>
+            {isAuthenticated ? (
+              <Nav.Link as={NavLink} to="/" eventKey="3" onClick={handleLogout}>
+                Log Out
+              </Nav.Link>
+            ) : (
+              <>
+                <Nav.Link as={NavLink} to="/login" eventKey="4">
+                  Login
+                </Nav.Link>
+                <Nav.Link as={NavLink} to="/signup" eventKey="5">
+                  Sign Up
+                </Nav.Link>
+              </>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

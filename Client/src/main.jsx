@@ -4,6 +4,9 @@ import ReactDOM from 'react-dom/client';
 // import react router
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
+// import context
+import { AuthProvider } from './context/AuthContext.jsx';
+
 // import css
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './styles/index.css';
@@ -34,5 +37,7 @@ const router = createBrowserRouter([
 
 // Render the RouterProvider component
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />,
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>,
 );

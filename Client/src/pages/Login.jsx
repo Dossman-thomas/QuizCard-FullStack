@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Card, InputGroup } from 'react-bootstrap';
 import { loginUser } from '../services/auth/auth.service';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   //   e.preventDefault();
   const navigate = useNavigate();
+
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     email: '',
@@ -65,8 +68,7 @@ export default function LoginPage() {
         throw new Error(res.message || 'Login failed');
       }
 
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('userId', res.data.userId);
+      login(res.data.token, res.data.userId);
 
       navigate('/manage-cards');
     } catch (err) {
