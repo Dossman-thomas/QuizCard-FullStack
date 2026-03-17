@@ -84,6 +84,10 @@ p {
   text-align: center;
 }
 
+.buffer-margin {
+  margin-top: 13vh;
+}
+
 /* Button Styles */
 .btn {
   border: none;

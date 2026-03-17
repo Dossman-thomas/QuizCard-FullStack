@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Button from "react-bootstrap/Button";
-import CardForm from "../components/CardForm";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import CardForm from '../components/CardForm';
 import {
   getCards,
   createCard,
   updateCard,
   deleteCard,
   toggleStarred,
-} from "../services/cardService";
+} from '../services/cardService';
 
 export default function ManageCardsPage() {
   const navigate = useNavigate();
 
   // State to add new cards to the page
   const [cards, setCards] = useState([
-    { id: Date.now(), question: "", answer: "" }, // start with an empty card
+    { id: Date.now(), question: '', answer: '' }, // start with an empty card
   ]);
 
   // Load existing cards from local storage
@@ -27,7 +27,7 @@ export default function ManageCardsPage() {
         setCards(cards);
       } else {
         // start with blank card
-        setCards([{ id: Date.now(), question: "", answer: "" }]);
+        setCards([{ id: Date.now(), question: '', answer: '' }]);
       }
     };
     loadCards();
@@ -35,7 +35,7 @@ export default function ManageCardsPage() {
 
   // Add a new blank card form
   const handleAddNewCardForm = () => {
-    const newCard = { id: Date.now(), question: "", answer: "" };
+    const newCard = { id: Date.now(), question: '', answer: '' };
     setCards([...cards, newCard]);
   };
 
@@ -46,8 +46,8 @@ export default function ManageCardsPage() {
     let savedCard;
     if (
       existingCard &&
-      existingCard.question !== "" &&
-      existingCard.answer !== ""
+      existingCard.question !== '' &&
+      existingCard.answer !== ''
     ) {
       // card already exists, so update it
       savedCard = await updateCard(id, fields);
@@ -102,7 +102,7 @@ export default function ManageCardsPage() {
         <Button className="action-btn btn" onClick={handleAddNewCardForm}>
           Add New Card
         </Button>
-        <Button className="primary-btn btn" onClick={() => navigate("/study")}>
+        <Button className="primary-btn btn" onClick={() => navigate('/study')}>
           Want to Study?
         </Button>
       </div>

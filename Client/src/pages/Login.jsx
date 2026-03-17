@@ -1,3 +1,166 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Form, Button, Card, InputGroup } from 'react-bootstrap';
+import { loginUser } from '../services/auth/auth.service';
+
 export default function LoginPage() {
-  return <div className="mt-5">Login page coming soon</div>;
+  //   e.preventDefault();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    rememberMe: false,
+  });
+
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // same pattern you had in Angular
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({
+      ...prev,
+      [field]: true,
+    }));
+  };
+
+  const isEmailValid = emailRegex.test(form.email);
+  const isPasswordValid = passwordRegex.test(form.password);
+
+  const isFormValid = isEmailValid && isPasswordValid;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const res = await loginUser({
+        email: form.email,
+        password: form.password,
+      });
+
+      console.log(res);
+
+      if (res.status !== 200) {
+        throw new Error(res.message || 'Login failed');
+      }
+
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('userId', res.data.userId);
+
+      navigate('/manage-cards');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="w-25 mx-auto buffer-margin p-4 shadow">
+      <h2 className="my-3 text-center">Login</h2>
+
+      <Form onSubmit={handleSubmit}>
+        {/* EMAIL */}
+        <Form.Group className="mb-3">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            onBlur={() => handleBlur('email')}
+            required
+          />
+          {!isEmailValid && touched.email && (
+            <div className="text-danger mt-2">
+              Please enter a valid email address.
+            </div>
+          )}
+        </Form.Group>
+
+        {/* PASSWORD */}
+        <Form.Group className="mb-3">
+          <Form.Label>Password</Form.Label>
+
+          <InputGroup>
+            <Form.Control
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              onBlur={() => handleBlur('password')}
+              required
+            />
+
+            <Button
+              variant="outline-secondary"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </Button>
+          </InputGroup>
+
+          {!isPasswordValid && touched.password && (
+            <div className="text-danger mt-2">
+              Password must be at least 8 characters long and include letters,
+              numbers, and special character.
+            </div>
+          )}
+        </Form.Group>
+
+        {/* REMEMBER ME */}
+        <Form.Group className="mb-3 d-flex align-items-center gap-2">
+          <Form.Check
+            type="checkbox"
+            name="rememberMe"
+            checked={form.rememberMe}
+            onChange={handleChange}
+            label="Remember Me"
+          />
+        </Form.Group>
+
+        {/* ERROR MESSAGE */}
+        {error && <div className="text-danger mb-3">{error}</div>}
+
+        {/* SUBMIT */}
+        <Button
+          type="submit"
+          className="w-100"
+          disabled={!isFormValid || loading}
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </Button>
+
+        {/* FUTURE FEATURE (commented out) */}
+        {/*
+        <div className="text-center mt-3">
+          <a href="/forgot-password">
+            Forgot Password? <strong>Click here to Reset</strong>
+          </a>
+        </div>
+        */}
+      </Form>
+    </Card>
+  );
 }
