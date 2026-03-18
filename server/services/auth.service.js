@@ -211,13 +211,15 @@ export const loginUserService = async (payload) => {
       },
     );
 
-    // package token and user details before sending them back
-    const responsePayload = { token: token, userId: user.user_id };
+    const userId = user.user_id;
 
     // on successful login, reset the attempt count
 
     // return packaged response payload
-    return responsePayload;
+    return {
+      token,
+      userId,
+    };
   } catch (error) {
     // handle errors and log them for debugging
     logServiceError('loginUserService', error);

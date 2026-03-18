@@ -4,8 +4,9 @@ import { response } from '../utils/index.js';
 
 export const registerUserController = async (req, res) => {
   try {
+    const { payload } = req.body;
     // register user using service function
-    const authPayload = await registerUserService(req.body);
+    const authPayload = await registerUserService(payload);
 
     // send success response
     return response(res, {
@@ -29,9 +30,8 @@ export const registerUserController = async (req, res) => {
 };
 
 export const loginUserController = async (req, res) => {
-  const { payload } = req.body;
-
   try {
+    const { payload } = req.body;
     // authenticate user during login
     const authPayload = await loginUserService(payload);
 

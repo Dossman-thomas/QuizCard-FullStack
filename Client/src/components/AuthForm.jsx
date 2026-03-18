@@ -73,6 +73,7 @@ export default function AuthForm({ mode = 'login' }) {
         throw new Error(res.message || 'Auth failed');
       }
 
+      console.log(res.data.token, res.data.userId);
       // 🔥 works for BOTH login + signup
       login(res.data.token, res.data.userId);
 

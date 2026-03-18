@@ -3,6 +3,7 @@ const BASE_URL = 'http://localhost:3001/api/auth'; // adjust if needed (e.g. htt
 // register a new user
 export const registerUser = async (payload) => {
   try {
+    console.log(payload);
     const res = await fetch(`${BASE_URL}/register`, {
       method: 'POST',
       headers: {
@@ -12,7 +13,7 @@ export const registerUser = async (payload) => {
     });
 
     const data = await res.json();
-
+    console.log(data);
     return data;
   } catch (error) {
     console.error('registerUser error:', error);
@@ -32,7 +33,7 @@ export const loginUser = async (payload) => {
     });
 
     const data = await res.json();
-
+    console.log(data);
     return data;
   } catch (error) {
     console.error('loginUser error:', error);
